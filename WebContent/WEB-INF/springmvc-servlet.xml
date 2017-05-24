@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+				http://www.springframework.org/schema/beans
+           		http://www.springframework.org/schema/beans/spring-beans.xsd
+           		http://www.springframework.org/schema/context
+           		http://www.springframework.org/schema/context/spring-context.xsd
+           		http://www.springframework.org/schema/tx
+           		http://www.springframework.org/schema/tx/spring-tx.xsd
+           		http://www.springframework.org/schema/aop
+           		http://www.springframework.org/schema/aop/spring-aop.xsd
+           		http://www.springframework.org/schema/mvc
+           		http://www.springframework.org/schema/mvc/spring-mvc.xsd
+           	">
+        <context:component-scan base-package="com"/>
+	<!-- 配置数据源，用的是druid数据库连接池 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/goods" />
+		<property name="username" value="root" />
+		<property name="password" value="123456" />
+	</bean>
+	<!-- 添加注解驱动配置，才能使@Responsebody有效 -->
+	<mvc:annotation-driven/>
+	
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding">
+			<value>UTF-8</value>
+		</property>
+		<property name="maxUploadSize">
+			<value>10485760</value><!-- 10M -->
+		</property>
+		<property name="maxInMemorySize">
+			<value>4096</value>
+		</property>
+	</bean>
+	<!-- 整合mybatis框架 -->
+	<!-- 通知IoC容器帮我初始化SqlSession -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	 <property name="dataSource" ref="dataSource"></property>
+	 <property name="mapperLocations" value="classpath:com/mapper/*.xml"></property>
+	</bean>
+    <!-- 自动扫描 将Mapper接口生成代理注入到Spring -->
+    <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+      <property name="basePackage" value="com.dao"></property>
+      <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBeanName"></property>
+    </bean>
+</beans>
